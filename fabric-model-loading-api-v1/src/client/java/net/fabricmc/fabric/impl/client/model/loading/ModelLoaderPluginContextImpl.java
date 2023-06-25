@@ -71,7 +71,7 @@ public class ModelLoaderPluginContextImpl implements ModelLoadingPlugin.Context 
 		return null;
 	});
 
-	private static final Identifier[] MODEL_MODIFIER_PHASES = new Identifier[] { ModelModifier.OVERRIDE_PHASE, ModelModifier.DEFAULT_PHASE, ModelModifier.WRAP_PHASE };
+	private static final Identifier[] MODEL_MODIFIER_PHASES = new Identifier[] { ModelModifier.OVERRIDE_PHASE, ModelModifier.DEFAULT_PHASE, ModelModifier.WRAP_SELF_PHASE, ModelModifier.WRAP_FINAL_PHASE };
 
 	private static Event<ModelModifier.Unbaked> createUnbakedModelEvent() {
 		return EventFactory.createWithPhases(ModelModifier.Unbaked.class, modifiers -> (model, context) -> {

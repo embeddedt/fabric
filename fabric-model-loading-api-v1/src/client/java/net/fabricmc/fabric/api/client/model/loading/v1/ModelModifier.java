@@ -16,6 +16,8 @@
 
 package net.fabricmc.fabric.api.client.model.loading.v1;
 
+import net.fabricmc.fabric.api.event.Event;
+
 import net.minecraft.client.render.model.BakedModel;
 import net.minecraft.client.render.model.Baker;
 import net.minecraft.client.render.model.ModelBakeSettings;
@@ -32,9 +34,23 @@ import java.util.function.Function;
  * DEFAULT, and WRAP, that fire in that order. These can be used to help maximize compatibility among multiple mods.
  */
 public final class ModelModifier {
+	/**
+	 * Recommended phase to use when overriding models, e.g. replacing a model with another model.
+	 */
 	public static final Identifier OVERRIDE_PHASE = new Identifier("fabric", "override");
-	public static final Identifier DEFAULT_PHASE = new Identifier("fabric", "default");
-	public static final Identifier WRAP_PHASE = new Identifier("fabric", "wrap");
+	/**
+	 * Recommended phase to use for transformations that need to happen before wrapping, but after model overrides.
+	 */
+	public static final Identifier DEFAULT_PHASE = Event.DEFAULT_PHASE;
+	/**
+	 * Recommended phase to use when wrapping your own mod's existing models.
+	 */
+	public static final Identifier WRAP_SELF_PHASE = new Identifier("fabric", "wrap_self");
+	/**
+	 * Recommended phase to use when wrapping other models, e.g. for connected textures or other similar visual
+	 * effects.
+	 */
+	public static final Identifier WRAP_FINAL_PHASE = new Identifier("fabric", "wrap_final");
 
 	private ModelModifier() {}
 
