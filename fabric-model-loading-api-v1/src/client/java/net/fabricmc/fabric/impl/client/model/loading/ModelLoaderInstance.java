@@ -43,7 +43,7 @@ public class ModelLoaderInstance implements ModelProviderContext {
 		PLUGINS.add(plugin);
 	}
 
-	private ModelLoader loader;
+	private final ModelLoader loader;
 	private final ModelLoaderPluginContextImpl context;
 
 	public ModelLoaderInstance(ModelLoader loader, ResourceManager manager) {
@@ -102,9 +102,5 @@ public class ModelLoaderInstance implements ModelProviderContext {
 
 			return null;
 		}
-	}
-
-	public void finish() {
-		loader = null;
 	}
 }

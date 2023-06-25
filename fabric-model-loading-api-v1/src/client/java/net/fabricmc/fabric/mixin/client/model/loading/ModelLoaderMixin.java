@@ -90,11 +90,6 @@ public abstract class ModelLoaderMixin implements ModelLoaderHooks {
 		}
 	}
 
-	@Inject(at = @At("RETURN"), method = "<init>")
-	private void initFinishedHook(CallbackInfo info) {
-		fabric_modelLoaderInstance.finish();
-	}
-
 	@Override
 	public void fabric_addModel(Identifier id) {
 		if (id instanceof ModelIdentifier) {
