@@ -16,13 +16,20 @@
 
 package net.fabricmc.fabric.api.client.model.loading.v1;
 
+import net.minecraft.client.render.model.BakedModel;
+import net.minecraft.client.render.model.Baker;
+import net.minecraft.client.render.model.ModelBakeSettings;
 import net.minecraft.client.render.model.ModelLoader;
 import net.minecraft.client.render.model.UnbakedModel;
+import net.minecraft.client.texture.Sprite;
+import net.minecraft.client.util.SpriteIdentifier;
 import net.minecraft.util.Identifier;
 
-@FunctionalInterface
-public interface UnbakedModelObserver {
-	UnbakedModel observeUnbakedModel(UnbakedModel model, Context context);
+import java.util.function.Function;
 
-	record Context(Identifier location, ModelLoader loader) {}
+@FunctionalInterface
+public interface BakedModelModifier {
+	BakedModel modifyBakedModel(BakedModel model, Context context);
+
+	record Context(Identifier location, UnbakedModel sourceModel, Function<SpriteIdentifier, Sprite> textureGetter, ModelBakeSettings settings, Baker baker, ModelLoader loader) {}
 }

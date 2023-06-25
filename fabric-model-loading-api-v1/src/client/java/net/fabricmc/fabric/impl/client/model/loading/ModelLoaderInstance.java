@@ -22,8 +22,8 @@ import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-import net.fabricmc.fabric.api.client.model.loading.v1.BakedModelObserver;
-import net.fabricmc.fabric.api.client.model.loading.v1.UnbakedModelObserver;
+import net.fabricmc.fabric.api.client.model.loading.v1.BakedModelModifier;
+import net.fabricmc.fabric.api.client.model.loading.v1.UnbakedModelModifier;
 
 import net.minecraft.client.render.model.BakedModel;
 
@@ -116,17 +116,17 @@ public class ModelLoaderInstance implements ModelProviderContext {
 	}
 
 	public UnbakedModel onUnbakedModelLoad(Identifier location, UnbakedModel model) {
-		UnbakedModelObserver.Context observerContext = new UnbakedModelObserver.Context(location, loader);
-		return context.onUnbakedModelLoad().invoker().observeUnbakedModel(model, observerContext);
+		UnbakedModelModifier.Context observerContext = new UnbakedModelModifier.Context(location, loader);
+		return context.onUnbakedModelLoad().invoker().modifyUnbakedModel(model, observerContext);
 	}
 
 	public UnbakedModel onUnbakedModelPreBake(Identifier location, UnbakedModel model) {
-		UnbakedModelObserver.Context observerContext = new UnbakedModelObserver.Context(location, loader);
-		return context.onUnbakedModelPreBake().invoker().observeUnbakedModel(model, observerContext);
+		UnbakedModelModifier.Context observerContext = new UnbakedModelModifier.Context(location, loader);
+		return context.onUnbakedModelPreBake().invoker().modifyUnbakedModel(model, observerContext);
 	}
 
 	public BakedModel onBakedModelLoad(Identifier location, UnbakedModel model, BakedModel bakedModel, Function<SpriteIdentifier, Sprite> textureGetter, ModelBakeSettings settings, Baker baker) {
-		BakedModelObserver.Context observerContext = new BakedModelObserver.Context(location, model, textureGetter, settings, baker, loader);
-		return context.onBakedModelLoad().invoker().observeBakedModel(bakedModel, observerContext);
+		BakedModelModifier.Context observerContext = new BakedModelModifier.Context(location, model, textureGetter, settings, baker, loader);
+		return context.onBakedModelLoad().invoker().modifyBakedModel(bakedModel, observerContext);
 	}
 }

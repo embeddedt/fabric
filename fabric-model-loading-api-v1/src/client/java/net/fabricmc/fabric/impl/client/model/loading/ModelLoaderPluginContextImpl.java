@@ -19,8 +19,8 @@ package net.fabricmc.fabric.impl.client.model.loading;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-import net.fabricmc.fabric.api.client.model.loading.v1.BakedModelObserver;
-import net.fabricmc.fabric.api.client.model.loading.v1.UnbakedModelObserver;
+import net.fabricmc.fabric.api.client.model.loading.v1.BakedModelModifier;
+import net.fabricmc.fabric.api.client.model.loading.v1.UnbakedModelModifier;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -71,10 +71,10 @@ public class ModelLoaderPluginContextImpl implements ModelLoadingPlugin.Context 
 
 		return null;
 	});
-	private final Event<UnbakedModelObserver> unbakedModelLoadObservers = EventFactory.createArrayBacked(UnbakedModelObserver.class, observers -> (model, context) -> {
-		for (UnbakedModelObserver observer : observers) {
+	private final Event<UnbakedModelModifier> unbakedModelLoadObservers = EventFactory.createArrayBacked(UnbakedModelModifier.class, observers -> (model, context) -> {
+		for (UnbakedModelModifier observer : observers) {
 			try {
-				model = observer.observeUnbakedModel(model, context);
+				model = observer.modifyUnbakedModel(model, context);
 			} catch (Exception exception) {
 				LOGGER.error("Unbaked model pre-bake observer threw error", exception);
 			}
@@ -82,10 +82,10 @@ public class ModelLoaderPluginContextImpl implements ModelLoadingPlugin.Context 
 
 		return model;
 	});
-	private final Event<UnbakedModelObserver> unbakedModelPreBakeObservers = EventFactory.createArrayBacked(UnbakedModelObserver.class, observers -> (model, context) -> {
-		for (UnbakedModelObserver observer : observers) {
+	private final Event<UnbakedModelModifier> unbakedModelPreBakeObservers = EventFactory.createArrayBacked(UnbakedModelModifier.class, observers -> (model, context) -> {
+		for (UnbakedModelModifier observer : observers) {
 			try {
-				model = observer.observeUnbakedModel(model, context);
+				model = observer.modifyUnbakedModel(model, context);
 			} catch (Exception exception) {
 				LOGGER.error("Unbaked model pre-bake observer threw error", exception);
 			}
@@ -93,10 +93,10 @@ public class ModelLoaderPluginContextImpl implements ModelLoadingPlugin.Context 
 
 		return model;
 	});
-	private final Event<BakedModelObserver> bakedModelLoadObservers = EventFactory.createArrayBacked(BakedModelObserver.class, observers -> (model, context) -> {
-		for (BakedModelObserver observer : observers) {
+	private final Event<BakedModelModifier> bakedModelLoadObservers = EventFactory.createArrayBacked(BakedModelModifier.class, observers -> (model, context) -> {
+		for (BakedModelModifier observer : observers) {
 			try {
-				model = observer.observeBakedModel(model, context);
+				model = observer.modifyBakedModel(model, context);
 			} catch (Exception exception) {
 				LOGGER.error("Baked model load observer threw error", exception);
 			}
@@ -136,17 +136,17 @@ public class ModelLoaderPluginContextImpl implements ModelLoadingPlugin.Context 
 	}
 
 	@Override
-	public Event<UnbakedModelObserver> onUnbakedModelLoad() {
+	public Event<UnbakedModelModifier> onUnbakedModelLoad() {
 		return unbakedModelLoadObservers;
 	}
 
 	@Override
-	public Event<UnbakedModelObserver> onUnbakedModelPreBake() {
+	public Event<UnbakedModelModifier> onUnbakedModelPreBake() {
 		return unbakedModelPreBakeObservers;
 	}
 
 	@Override
-	public Event<BakedModelObserver> onBakedModelLoad() {
+	public Event<BakedModelModifier> onBakedModelLoad() {
 		return bakedModelLoadObservers;
 	}
 }
