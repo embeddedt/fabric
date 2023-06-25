@@ -19,8 +19,7 @@ package net.fabricmc.fabric.impl.client.model.loading;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-import net.fabricmc.fabric.api.client.model.loading.v1.BakedModelModifier;
-import net.fabricmc.fabric.api.client.model.loading.v1.UnbakedModelModifier;
+import net.fabricmc.fabric.api.client.model.loading.v1.ModelModifier;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -71,39 +70,37 @@ public class ModelLoaderPluginContextImpl implements ModelLoadingPlugin.Context 
 
 		return null;
 	});
-	private final Event<UnbakedModelModifier> unbakedModelLoadObservers = EventFactory.createArrayBacked(UnbakedModelModifier.class, observers -> (model, context) -> {
-		for (UnbakedModelModifier observer : observers) {
+
+	private static final Identifier[] MODEL_MODIFIER_PHASES = new Identifier[] { ModelModifier.OVERRIDE_PHASE, ModelModifier.DEFAULT_PHASE, ModelModifier.WRAP_PHASE };
+
+	private static Event<ModelModifier.Unbaked> createUnbakedModelEvent() {
+		return EventFactory.createWithPhases(ModelModifier.Unbaked.class, modifiers -> (model, context) -> {
+			for (ModelModifier.Unbaked modifier : modifiers) {
+				try {
+					model = modifier.modifyUnbakedModel(model, context);
+				} catch (Exception exception) {
+					LOGGER.error("Unbaked model modifier threw error", exception);
+				}
+			}
+
+			return model;
+		}, MODEL_MODIFIER_PHASES);
+	}
+
+
+	private final Event<ModelModifier.Unbaked> unbakedModelLoadModifiers = createUnbakedModelEvent();
+	private final Event<ModelModifier.Unbaked> unbakedModelPreBakeModifiers = createUnbakedModelEvent();
+	private final Event<ModelModifier.Baked> bakedModelLoadModifiers = EventFactory.createWithPhases(ModelModifier.Baked.class, modifiers -> (model, context) -> {
+		for (ModelModifier.Baked modifier : modifiers) {
 			try {
-				model = observer.modifyUnbakedModel(model, context);
+				model = modifier.modifyBakedModel(model, context);
 			} catch (Exception exception) {
-				LOGGER.error("Unbaked model pre-bake observer threw error", exception);
+				LOGGER.error("Baked model modifier threw error", exception);
 			}
 		}
 
 		return model;
-	});
-	private final Event<UnbakedModelModifier> unbakedModelPreBakeObservers = EventFactory.createArrayBacked(UnbakedModelModifier.class, observers -> (model, context) -> {
-		for (UnbakedModelModifier observer : observers) {
-			try {
-				model = observer.modifyUnbakedModel(model, context);
-			} catch (Exception exception) {
-				LOGGER.error("Unbaked model pre-bake observer threw error", exception);
-			}
-		}
-
-		return model;
-	});
-	private final Event<BakedModelModifier> bakedModelLoadObservers = EventFactory.createArrayBacked(BakedModelModifier.class, observers -> (model, context) -> {
-		for (BakedModelModifier observer : observers) {
-			try {
-				model = observer.modifyBakedModel(model, context);
-			} catch (Exception exception) {
-				LOGGER.error("Baked model load observer threw error", exception);
-			}
-		}
-
-		return model;
-	});
+	}, MODEL_MODIFIER_PHASES);
 
 	/**
 	 * This field is used by the v0 wrapper to avoid constantly wrapping the context in hot code.
@@ -136,17 +133,17 @@ public class ModelLoaderPluginContextImpl implements ModelLoadingPlugin.Context 
 	}
 
 	@Override
-	public Event<UnbakedModelModifier> onUnbakedModelLoad() {
-		return unbakedModelLoadObservers;
+	public Event<ModelModifier.Unbaked> onUnbakedModelLoad() {
+		return unbakedModelLoadModifiers;
 	}
 
 	@Override
-	public Event<UnbakedModelModifier> onUnbakedModelPreBake() {
-		return unbakedModelPreBakeObservers;
+	public Event<ModelModifier.Unbaked> onUnbakedModelPreBake() {
+		return unbakedModelPreBakeModifiers;
 	}
 
 	@Override
-	public Event<BakedModelModifier> onBakedModelLoad() {
-		return bakedModelLoadObservers;
+	public Event<ModelModifier.Baked> onBakedModelLoad() {
+		return bakedModelLoadModifiers;
 	}
 }

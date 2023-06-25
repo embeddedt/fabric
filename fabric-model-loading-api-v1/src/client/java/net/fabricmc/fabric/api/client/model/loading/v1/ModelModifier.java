@@ -27,9 +27,28 @@ import net.minecraft.util.Identifier;
 
 import java.util.function.Function;
 
-@FunctionalInterface
-public interface BakedModelModifier {
-	BakedModel modifyBakedModel(BakedModel model, Context context);
+/**
+ * Contains interfaces for the events mods can use to modify models. These events have multiple phases: OVERRIDE,
+ * DEFAULT, and WRAP, that fire in that order. These can be used to help maximize compatibility among multiple mods.
+ */
+public final class ModelModifier {
+	public static final Identifier OVERRIDE_PHASE = new Identifier("fabric", "override");
+	public static final Identifier DEFAULT_PHASE = new Identifier("fabric", "default");
+	public static final Identifier WRAP_PHASE = new Identifier("fabric", "wrap");
 
-	record Context(Identifier location, UnbakedModel sourceModel, Function<SpriteIdentifier, Sprite> textureGetter, ModelBakeSettings settings, Baker baker, ModelLoader loader) {}
+	private ModelModifier() {}
+
+	@FunctionalInterface
+	public interface Unbaked {
+		UnbakedModel modifyUnbakedModel(UnbakedModel model, Context context);
+
+		record Context(Identifier location, ModelLoader loader) {}
+	}
+
+	@FunctionalInterface
+	public interface Baked {
+		BakedModel modifyBakedModel(BakedModel model, Context context);
+
+		record Context(Identifier location, UnbakedModel sourceModel, Function<SpriteIdentifier, Sprite> textureGetter, ModelBakeSettings settings, Baker baker, ModelLoader loader) {}
+	}
 }
