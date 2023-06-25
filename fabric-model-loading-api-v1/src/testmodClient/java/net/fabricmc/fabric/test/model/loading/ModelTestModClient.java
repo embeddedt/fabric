@@ -16,8 +16,14 @@
 
 package net.fabricmc.fabric.test.model.loading;
 
+import com.google.common.collect.ImmutableList;
+
+import net.fabricmc.fabric.api.renderer.v1.model.ForwardingBakedModel;
+
+import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.client.render.entity.PlayerEntityRenderer;
+import net.minecraft.client.render.model.BakedModel;
 import net.minecraft.client.render.model.BakedQuad;
 import net.minecraft.resource.ResourceType;
 import net.minecraft.util.Identifier;
@@ -37,18 +43,27 @@ public class ModelTestModClient implements ClientModInitializer {
 
 	public static final Identifier MODEL_ID = new Identifier(ID, "half_red_sand");
 
+	static class DownQuadRemovingModel extends ForwardingBakedModel {
+		public DownQuadRemovingModel(BakedModel model) {
+			wrapped = model;
+		}
+
+		@Override
+		public List<BakedQuad> getQuads(BlockState blockState, Direction face, Random rand) {
+			return face == Direction.DOWN ? ImmutableList.of() : super.getQuads(blockState, face, rand);
+		}
+	}
+
 	@Override
 	public void onInitializeClient() {
 		ModelLoadingPlugin.register(pluginContext -> {
 			pluginContext.addModel(MODEL_ID);
 			pluginContext.onBakedModelLoad().register((model, context) -> {
 				if(context.location().getPath().equals("block/dirt")) {
-					// modders, treating quad list as mutable can break performance mods like FerriteCore, this is being
-					// done here purely for test purposes
-					List<BakedQuad> quads = model.getQuads(Blocks.DIRT.getDefaultState(), Direction.DOWN, Random.create());
-					quads.clear();
+					return new DownQuadRemovingModel(model);
+				} else {
+					return model;
 				}
-				return model;
 			});
 		});
 
