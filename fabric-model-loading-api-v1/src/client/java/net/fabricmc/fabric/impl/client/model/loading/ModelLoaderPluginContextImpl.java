@@ -19,6 +19,9 @@ package net.fabricmc.fabric.impl.client.model.loading;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import net.fabricmc.fabric.api.client.model.loading.v1.BakedModelObserver;
+import net.fabricmc.fabric.api.client.model.loading.v1.UnbakedModelObserver;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -68,6 +71,39 @@ public class ModelLoaderPluginContextImpl implements ModelLoadingPlugin.Context 
 
 		return null;
 	});
+	private final Event<UnbakedModelObserver> unbakedModelLoadObservers = EventFactory.createArrayBacked(UnbakedModelObserver.class, observers -> context -> {
+		for (UnbakedModelObserver observer : observers) {
+			try {
+				context = context.withModel(observer.observeUnbakedModel(context));
+			} catch (Exception exception) {
+				LOGGER.error("Unbaked model pre-bake observer threw error", exception);
+			}
+		}
+
+		return context.model();
+	});
+	private final Event<UnbakedModelObserver> unbakedModelPreBakeObservers = EventFactory.createArrayBacked(UnbakedModelObserver.class, observers -> context -> {
+		for (UnbakedModelObserver observer : observers) {
+			try {
+				context = context.withModel(observer.observeUnbakedModel(context));
+			} catch (Exception exception) {
+				LOGGER.error("Unbaked model pre-bake observer threw error", exception);
+			}
+		}
+
+		return context.model();
+	});
+	private final Event<BakedModelObserver> bakedModelLoadObservers = EventFactory.createArrayBacked(BakedModelObserver.class, observers -> context -> {
+		for (BakedModelObserver observer : observers) {
+			try {
+				context = context.withModel(observer.observeBakedModel(context));
+			} catch (Exception exception) {
+				LOGGER.error("Baked model load observer threw error", exception);
+			}
+		}
+
+		return context.bakedModel();
+	});
 
 	/**
 	 * This field is used by the v0 wrapper to avoid constantly wrapping the context in hot code.
@@ -97,5 +133,20 @@ public class ModelLoaderPluginContextImpl implements ModelLoadingPlugin.Context 
 	@Override
 	public Event<ModelResourceProvider> resourceProviders() {
 		return resourceProviders;
+	}
+
+	@Override
+	public Event<UnbakedModelObserver> onUnbakedModelLoad() {
+		return unbakedModelLoadObservers;
+	}
+
+	@Override
+	public Event<UnbakedModelObserver> onUnbakedModelPreBake() {
+		return unbakedModelPreBakeObservers;
+	}
+
+	@Override
+	public Event<BakedModelObserver> onBakedModelLoad() {
+		return bakedModelLoadObservers;
 	}
 }

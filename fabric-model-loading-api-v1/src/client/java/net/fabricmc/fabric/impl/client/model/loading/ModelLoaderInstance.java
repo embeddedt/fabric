@@ -20,6 +20,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
+import java.util.function.Function;
+
+import net.fabricmc.fabric.api.client.model.loading.v1.BakedModelObserver;
+import net.fabricmc.fabric.api.client.model.loading.v1.UnbakedModelObserver;
+
+import net.minecraft.client.render.model.BakedModel;
+
+import net.minecraft.client.render.model.Baker;
+import net.minecraft.client.render.model.ModelBakeSettings;
+import net.minecraft.client.texture.Sprite;
+import net.minecraft.client.util.SpriteIdentifier;
 
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
@@ -102,5 +113,20 @@ public class ModelLoaderInstance implements ModelProviderContext {
 
 			return null;
 		}
+	}
+
+	public UnbakedModel onUnbakedModelLoad(Identifier location, UnbakedModel model) {
+		UnbakedModelObserver.Context observerContext = new UnbakedModelObserver.Context(location, model, loader);
+		return context.onUnbakedModelLoad().invoker().observeUnbakedModel(observerContext);
+	}
+
+	public UnbakedModel onUnbakedModelPreBake(Identifier location, UnbakedModel model) {
+		UnbakedModelObserver.Context observerContext = new UnbakedModelObserver.Context(location, model, loader);
+		return context.onUnbakedModelPreBake().invoker().observeUnbakedModel(observerContext);
+	}
+
+	public BakedModel onBakedModelLoad(Identifier location, UnbakedModel model, BakedModel bakedModel, Function<SpriteIdentifier, Sprite> textureGetter, ModelBakeSettings settings, Baker baker) {
+		BakedModelObserver.Context observerContext = new BakedModelObserver.Context(location, model, bakedModel, textureGetter, settings, baker, loader);
+		return context.onBakedModelLoad().invoker().observeBakedModel(observerContext);
 	}
 }

@@ -64,5 +64,20 @@ public interface ModelLoadingPlugin {
 		 * Event access to register model resource providers.
 		 */
 		Event<ModelResourceProvider> resourceProviders();
+
+		/**
+		 * Event access to monitor unbaked model loads and replace the loaded model.
+		 */
+		Event<UnbakedModelObserver> onUnbakedModelLoad();
+
+		/**
+		 * Event access to swap the unbaked model used for baking without replacing the loaded model.
+		 */
+		Event<UnbakedModelObserver> onUnbakedModelPreBake();
+
+		/**
+		 * Event access to monitor baked model loads and replace the loaded model.
+		 */
+		Event<BakedModelObserver> onBakedModelLoad();
 	}
 }
