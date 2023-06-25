@@ -71,38 +71,38 @@ public class ModelLoaderPluginContextImpl implements ModelLoadingPlugin.Context 
 
 		return null;
 	});
-	private final Event<UnbakedModelObserver> unbakedModelLoadObservers = EventFactory.createArrayBacked(UnbakedModelObserver.class, observers -> context -> {
+	private final Event<UnbakedModelObserver> unbakedModelLoadObservers = EventFactory.createArrayBacked(UnbakedModelObserver.class, observers -> (model, context) -> {
 		for (UnbakedModelObserver observer : observers) {
 			try {
-				context = context.withModel(observer.observeUnbakedModel(context));
+				model = observer.observeUnbakedModel(model, context);
 			} catch (Exception exception) {
 				LOGGER.error("Unbaked model pre-bake observer threw error", exception);
 			}
 		}
 
-		return context.model();
+		return model;
 	});
-	private final Event<UnbakedModelObserver> unbakedModelPreBakeObservers = EventFactory.createArrayBacked(UnbakedModelObserver.class, observers -> context -> {
+	private final Event<UnbakedModelObserver> unbakedModelPreBakeObservers = EventFactory.createArrayBacked(UnbakedModelObserver.class, observers -> (model, context) -> {
 		for (UnbakedModelObserver observer : observers) {
 			try {
-				context = context.withModel(observer.observeUnbakedModel(context));
+				model = observer.observeUnbakedModel(model, context);
 			} catch (Exception exception) {
 				LOGGER.error("Unbaked model pre-bake observer threw error", exception);
 			}
 		}
 
-		return context.model();
+		return model;
 	});
-	private final Event<BakedModelObserver> bakedModelLoadObservers = EventFactory.createArrayBacked(BakedModelObserver.class, observers -> context -> {
+	private final Event<BakedModelObserver> bakedModelLoadObservers = EventFactory.createArrayBacked(BakedModelObserver.class, observers -> (model, context) -> {
 		for (BakedModelObserver observer : observers) {
 			try {
-				context = context.withModel(observer.observeBakedModel(context));
+				model = observer.observeBakedModel(model, context);
 			} catch (Exception exception) {
 				LOGGER.error("Baked model load observer threw error", exception);
 			}
 		}
 
-		return context.bakedModel();
+		return model;
 	});
 
 	/**

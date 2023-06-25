@@ -116,17 +116,17 @@ public class ModelLoaderInstance implements ModelProviderContext {
 	}
 
 	public UnbakedModel onUnbakedModelLoad(Identifier location, UnbakedModel model) {
-		UnbakedModelObserver.Context observerContext = new UnbakedModelObserver.Context(location, model, loader);
-		return context.onUnbakedModelLoad().invoker().observeUnbakedModel(observerContext);
+		UnbakedModelObserver.Context observerContext = new UnbakedModelObserver.Context(location, loader);
+		return context.onUnbakedModelLoad().invoker().observeUnbakedModel(model, observerContext);
 	}
 
 	public UnbakedModel onUnbakedModelPreBake(Identifier location, UnbakedModel model) {
-		UnbakedModelObserver.Context observerContext = new UnbakedModelObserver.Context(location, model, loader);
-		return context.onUnbakedModelPreBake().invoker().observeUnbakedModel(observerContext);
+		UnbakedModelObserver.Context observerContext = new UnbakedModelObserver.Context(location, loader);
+		return context.onUnbakedModelPreBake().invoker().observeUnbakedModel(model, observerContext);
 	}
 
 	public BakedModel onBakedModelLoad(Identifier location, UnbakedModel model, BakedModel bakedModel, Function<SpriteIdentifier, Sprite> textureGetter, ModelBakeSettings settings, Baker baker) {
-		BakedModelObserver.Context observerContext = new BakedModelObserver.Context(location, model, bakedModel, textureGetter, settings, baker, loader);
-		return context.onBakedModelLoad().invoker().observeBakedModel(observerContext);
+		BakedModelObserver.Context observerContext = new BakedModelObserver.Context(location, model, textureGetter, settings, baker, loader);
+		return context.onBakedModelLoad().invoker().observeBakedModel(bakedModel, observerContext);
 	}
 }

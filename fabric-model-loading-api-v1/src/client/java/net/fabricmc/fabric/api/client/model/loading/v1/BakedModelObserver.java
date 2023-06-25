@@ -13,14 +13,7 @@ import java.util.function.Function;
 
 @FunctionalInterface
 public interface BakedModelObserver {
-	BakedModel observeBakedModel(Context context);
+	BakedModel observeBakedModel(BakedModel model, Context context);
 
-	record Context(Identifier location, UnbakedModel model, BakedModel bakedModel, Function<SpriteIdentifier, Sprite> textureGetter, ModelBakeSettings settings, Baker baker, ModelLoader loader) {
-		public Context withModel(BakedModel newModel) {
-			if(bakedModel == newModel)
-				return this;
-			else
-				return new Context(location, model, newModel, textureGetter, settings, baker, loader);
-		}
-	}
+	record Context(Identifier location, UnbakedModel sourceModel, Function<SpriteIdentifier, Sprite> textureGetter, ModelBakeSettings settings, Baker baker, ModelLoader loader) {}
 }

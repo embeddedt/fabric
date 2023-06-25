@@ -41,14 +41,14 @@ public class ModelTestModClient implements ClientModInitializer {
 	public void onInitializeClient() {
 		ModelLoadingPlugin.register(pluginContext -> {
 			pluginContext.addModel(MODEL_ID);
-			pluginContext.onBakedModelLoad().register(context -> {
+			pluginContext.onBakedModelLoad().register((model, context) -> {
 				if(context.location().getPath().equals("block/dirt")) {
 					// modders, treating quad list as mutable can break performance mods like FerriteCore, this is being
 					// done here purely for test purposes
-					List<BakedQuad> quads = context.bakedModel().getQuads(Blocks.DIRT.getDefaultState(), Direction.DOWN, Random.create());
+					List<BakedQuad> quads = model.getQuads(Blocks.DIRT.getDefaultState(), Direction.DOWN, Random.create());
 					quads.clear();
 				}
-				return context.bakedModel();
+				return model;
 			});
 		});
 

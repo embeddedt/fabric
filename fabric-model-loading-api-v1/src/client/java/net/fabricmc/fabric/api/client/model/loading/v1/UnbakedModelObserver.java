@@ -6,14 +6,7 @@ import net.minecraft.util.Identifier;
 
 @FunctionalInterface
 public interface UnbakedModelObserver {
-	UnbakedModel observeUnbakedModel(Context context);
+	UnbakedModel observeUnbakedModel(UnbakedModel model, Context context);
 
-	record Context(Identifier location, UnbakedModel model, ModelLoader loader) {
-		public Context withModel(UnbakedModel newModel) {
-			if(model == newModel)
-				return this;
-			else
-				return new Context(location, newModel, loader);
-		}
-	}
+	record Context(Identifier location, ModelLoader loader) {}
 }
