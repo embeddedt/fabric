@@ -71,10 +71,6 @@ public class ModelLoaderInstance implements ModelProviderContext {
 
 	@Override
 	public UnbakedModel loadModel(Identifier id) {
-		if (loader == null) {
-			throw new RuntimeException("Called loadModel too late!");
-		}
-
 		return ((ModelLoaderHooks) loader).fabric_loadModel(id);
 	}
 
