@@ -24,6 +24,7 @@ import net.minecraft.client.render.model.ModelBakeSettings;
 import net.minecraft.client.render.model.ModelLoader;
 import net.minecraft.client.render.model.UnbakedModel;
 import net.minecraft.client.texture.Sprite;
+import net.minecraft.client.util.ModelIdentifier;
 import net.minecraft.client.util.SpriteIdentifier;
 import net.minecraft.util.Identifier;
 
@@ -32,6 +33,21 @@ import java.util.function.Function;
 /**
  * Contains interfaces for the events mods can use to modify models. These events have multiple phases: OVERRIDE,
  * DEFAULT, and WRAP, that fire in that order. These can be used to help maximize compatibility among multiple mods.
+ *
+ * Example use cases:
+ * <ol>
+ *     <li>Overriding a model for a particular blockstate - check if the given identifier is a {@link ModelIdentifier},
+ *     and then check if it has the appropriate variant for that blockstate. If so, return your desired model,
+ *     otherwise return the given model.</li>
+ *     <li>Wrapping a model to override certain behaviors - simply return a new model instance and delegate calls
+ *     to the original model as needed.</li>
+ * </ol>
+ *
+ * Phases are used to ensure that modifications occur in a reasonable order, e.g. wrapping occurs after overrides,
+ * and separate phases are provided for mods that wrap their own models and mods that need to wrap all models.
+ * <p></p>
+ * These hooks fire for every single model that's loaded so the code written here should be as simple/performant
+ * as possible.
  */
 public final class ModelModifier {
 	/**
@@ -56,15 +72,47 @@ public final class ModelModifier {
 
 	@FunctionalInterface
 	public interface Unbaked {
+		/**
+		 * This handler is invoked to allow modifying the unbaked model instance that is used/stored in a given,
+		 * event-dependent scenario.
+		 * <p></p>
+		 * For further information, see the docs of the particular event you are registering for.
+		 * @param model the current unbaked model instance
+		 * @param context context with additional information about the model/loader
+		 * @return the model that should be used in this scenario. If no changes are needed, just return {@code model} as-is.
+		 */
 		UnbakedModel modifyUnbakedModel(UnbakedModel model, Context context);
 
+		/**
+		 * Context for an unbaked model load/pre-bake event.
+		 * @param location the location of this model (may be a {@link ModelIdentifier})
+		 * @param loader the current model loader instance (changes when resource packs reload)
+		 */
 		record Context(Identifier location, ModelLoader loader) {}
 	}
 
 	@FunctionalInterface
 	public interface Baked {
+		/**
+		 * This handler is invoked to allow modifying the baked model instance that is used/stored in a given,
+		 * event-dependent scenario.
+		 * <p></p>
+		 * For further information, see the docs of the particular event you are registering for.
+		 * @param model the current baked model instance
+		 * @param context context with additional information about the model/loader
+		 * @return the model that should be used in this scenario. If no changes are needed, just return {@code model} as-is.
+		 */
 		BakedModel modifyBakedModel(BakedModel model, Context context);
 
+		/**
+		 * Context for a baked model load event.
+		 * @param location the location of this model (may be a {@link ModelIdentifier})
+		 * @param sourceModel the unbaked model that is being baked
+		 * @param textureGetter function that can be used to retrieve sprites
+		 * @param settings the settings this model is being baked with
+		 * @param baker the baker being used to bake this model
+		 * @param loader the current model loader instance (changes when resource packs reload)
+		 */
 		record Context(Identifier location, UnbakedModel sourceModel, Function<SpriteIdentifier, Sprite> textureGetter, ModelBakeSettings settings, Baker baker, ModelLoader loader) {}
 	}
 }

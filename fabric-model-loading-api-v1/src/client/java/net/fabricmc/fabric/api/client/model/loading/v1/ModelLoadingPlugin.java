@@ -16,6 +16,8 @@
 
 package net.fabricmc.fabric.api.client.model.loading.v1;
 
+import net.minecraft.client.render.model.json.JsonUnbakedModel;
+
 import org.jetbrains.annotations.ApiStatus;
 
 import net.minecraft.client.util.ModelIdentifier;
@@ -73,7 +75,7 @@ public interface ModelLoadingPlugin {
 		/**
 		 * Event access to swap the unbaked model used for baking without replacing the loaded model. This is important
 		 * for mods which wish to wrap a model but not actually affect other models that use it as a parent (e.g.
-		 * wrap a block's model into a non-BlockModel class but still allow the item model to work fine).
+		 * wrap a block's model into a non-{@link JsonUnbakedModel} class but still allow the item model to work fine).
 		 */
 		Event<ModelModifier.Unbaked> onUnbakedModelPreBake();
 
